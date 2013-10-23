@@ -17,12 +17,19 @@ class UI(QtGui.QDialog):
     def __creat__(self):
         self.grid = QtGui.QGridLayout(self)
 
+        self.hostAddr = QtGui.QLabel(self)
+        self.hostAddr.setText("Host Address:")
+        self.grid.addWidget(self.hostAddr, 0, 0, 1, 1)
+
+        self.getHostAddr = QtGui.QLineEdit(self)
+        self.grid.addWidget(self.getHostAddr, 0, 1, 1, 1)
+
         self.hostPort = QtGui.QLabel(self)
         self.hostPort.setText("Host Port:")
-        self.grid.addWidget(self.hostPort, 0, 0, 1, 2)
+        self.grid.addWidget(self.hostPort, 0, 2, 1, 1)
 
         self.getHostPort = QtGui.QLineEdit(self)
-        self.grid.addWidget(self.getHostPort, 0, 2, 1, 2)
+        self.grid.addWidget(self.getHostPort, 0, 3, 1, 1)
 
         self.receive_list = QtGui.QListWidget(self)
         self.grid.addWidget(self.receive_list, 1, 0, 4, 4)
@@ -71,7 +78,7 @@ class UI(QtGui.QDialog):
     def __conSocket__(self):
         self.receive_list.addItem("connecting")
         self.socket = socket(family=AF_INET, type=SOCK_STREAM)
-        self.server_address = ("127.0.0.1" ,1024)#int(self.getHostPort.text()))
+        self.server_address = (str(self.getHostAddr.text()) ,int(self.getHostPort.text()))
         self.socket.bind(self.server_address)
         self.socket.listen(1)
         while True:
@@ -82,7 +89,6 @@ class UI(QtGui.QDialog):
                 self.receive_list.addItem("%s connected" % self.clientName)
                 break
             
-
         self.thread = Thread(target=self.__recv__).start()
                       
         self.getHostPort.setDisabled(True)

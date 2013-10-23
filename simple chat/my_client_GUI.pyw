@@ -87,7 +87,7 @@ class UI(QtGui.QDialog):
         
     def __conSocket__(self):
         self.socket = socket(family=AF_INET, type=SOCK_STREAM)
-        self.server_address = ("127.0.0.1", 1024)#(self.getHostAddr.text() ,int(self.getHostPort.text()))
+        self.server_address = (str(self.getHostAddr.text()) ,int(self.getHostPort.text()))
         self.socket.connect(self.server_address)
         self.socket.send(">-<%s" % self.clientName)
         self.thread = Thread(target=self.__recv__).start()
