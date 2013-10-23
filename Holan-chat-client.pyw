@@ -13,25 +13,22 @@ class widget(QDialog):
 
         grid = QGridLayout(self)
 
-        name = QLabel("Welcome to our chat, your name will be <" + self.client_name + \
-                            ">.\nplease select one of these person and click talk")
+        name = QLabel("Welcome to our chat, your name will be <%s" \
+                            ">.\nplease select one of these person and click talk" % self.client_name)
         grid.addWidget(name, 0, 0, 1, 1)
 
-        clients = QListWidget(self)
-        grid.addWidget(clients, 1, 0, 2, 2)
+        self.clients = QListWidget(self)
+        grid.addWidget(self.clients, 1, 0, 2, 2)
 
-        talk = QPushButton("Talk")
-        grid.addWidget(talk, 4, 0, 1, 1)
+        self.talk = QPushButton("Talk")
+        grid.addWidget(self.talk, 4, 0, 1, 1)
 
-        visible = QCheckBox("make me invisible")
-        grid.addWidget(visible, 4, 1, 1, 1)
+        self.visible = QCheckBox("make me invisible")
+        grid.addWidget(self.visible, 4, 1, 1, 1)
 
 
         for i in range(20):
-            clients.addItem(str(i+1))
-
-
-
+            self.clients.addItem(str(i+1))
 
 
     def closeEvent(self, event):
@@ -59,9 +56,6 @@ class widget(QDialog):
 class chat(QDialog):
     def __init__ (self, patern = None):
         QDialog.__init__(self, patern)
-
-
-
 
 
 

@@ -11,8 +11,8 @@ def recv(client):
         print "client: ",data
         
 host = "127.0.0.1"
-port = 5080
-size = 900 #size of resive pockets
+port = 1024
+size = 1024 #size of resive pockets
 s = socket.socket(socket.AF_INET , socket.SOCK_STREAM)
 s.bind((host, port)) #connect the s to the host and port
 s.listen(5) #listen to the port and host
@@ -21,23 +21,20 @@ print "wathing for other user"
 while 1:
     client, address = s.accept()
     data = client.recv(size)
-    if data == "con":
+    if data == ">-<":
         break
 
 print "now connected"
 
-thread = [Thread(target = send(client)), Thread(target = recv(client))]
+thread = [Thread(target = send(client)).start(), Thread(target = recv(client)).start()]
 
-while 1:
-    for i in range(2):
-        thread[i].start()
 
 """
 while 1:
-    massage = str(raw_input("your massage"))
+    massage = str(raw_input("your massage: "))
     client.send(massage)
     data = client.recv(size)
     if data:
         print "client(s) : ",data
-"""
 
+"""
