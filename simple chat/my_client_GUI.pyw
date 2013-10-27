@@ -9,8 +9,8 @@ class UI(QtGui.QDialog):
     def __init__(self, size):
         QtGui.QWidget.__init__(self, None)
         self.resize(size[0], size[1])
-        self.setWindowTitle("simple chat client")
         self.clientName = self.__getName__()
+        self.setWindowTitle("simple chat client-%s" % self.clientName)
         self.__creat__()
         self.__connect__()
 

@@ -100,6 +100,7 @@ class UI(QtGui.QDialog):
             if data[:3] == ">-<":
                 self.clientName.append(data[3:])
                 self.receive_list.addItem("%s connected" % self.clientName[-1])
+                client.send("connected")
                 self.threadList.append(Thread(target=self.__recv__, args=(client, self.clientName[-1])).start())
         
     def __disconSocket__(self):
