@@ -74,10 +74,10 @@ class UI(QtGui.QDialog):
             event.ignore()
             
     def __send__(self):
-        if self.send_text.text():
+        if str(self.send_text.text()) != "":
             self.socket.send(str(self.send_text.text()))
-        self.receive_list.addItem("%s: %s" % (self.clientName, self.send_text.text()))
-        self.send_text.clear()
+            self.receive_list.addItem("%s: %s" % ("server", self.send_text.text()))
+            self.send_text.clear()
 
     def __recv__(self):
         while True:

@@ -10,7 +10,9 @@ class UI(QtGui.QDialog):
         QtGui.QWidget.__init__(self, None)
         self.resize(size[0], size[1])
         self.setWindowTitle("simple chat server")
-        self.clientName = ""
+        self.clientName = []
+        self.client = []
+        self.threadList = []
         self.__creat__()
         self.__connect__()
 
@@ -65,40 +67,47 @@ class UI(QtGui.QDialog):
         self.connect(self.disButton, QtCore.SIGNAL('clicked()'), self.__disconSocket__)
 
     def __send__(self):
-        self.client.send(str(self.send_text.text()))
-        self.receive_list.addItem("%s: %s" % ("server", self.send_text.text()))
-        self.send_text.clear()
+        if str(self.send_text.text()) != "":
+            for client in self.client:
+                client.send(str(self.send_text.text()))
+            self.receive_list.addItem("%s: %s" % ("server", self.send_text.text()))
+            self.send_text.clear()
        
-    def __recv__(self):
+    def __recv__(self, client, clientName):
         while True:
-            data = self.client.recv(1024)
+            data = client.recv(1024)
             if data:
-                self.receive_list.addItem("%s: %s" % (self.clientName, data))
+                 self.receive_list.addItem("%s: %s" % (clientName, data))
         
     def __conSocket__(self):
         self.receive_list.addItem("connecting")
         self.socket = socket(family=AF_INET, type=SOCK_STREAM)
         self.server_address = (str(self.getHostAddr.text()) ,int(self.getHostPort.text()))
         self.socket.bind(self.server_address)
-        self.socket.listen(1)
-        while True:
-            self.client, address = self.socket.accept()
-            data = self.client.recv(1024)
-            if data[:3] == ">-<":
-                self.clientName = data[3:]
-                self.receive_list.addItem("%s connected" % self.clientName)
-                break
-            
-        self.thread = Thread(target=self.__recv__).start()
-                      
+        
+        self.thread_set = Thread(target = self.__set__).start()
+        
         self.getHostPort.setDisabled(True)
         self.conButton.setDisabled(True)
+        self.getHostAddr.setDisabled(True)
 
+    def __set__(self):
+        self.socket.listen(1)
+        while True:
+            client, address = self.socket.accept()
+            self.client.append(client)
+            data = self.client[-1].recv(1024)
+            if data[:3] == ">-<":
+                self.clientName.append(data[3:])
+                self.receive_list.addItem("%s connected" % self.clientName[-1])
+                self.threadList.append(Thread(target=self.__recv__, args=(client, self.clientName[-1])).start())
+        
     def __disconSocket__(self):
         self.socket.close()
         del self.socket
         self.getHostPort.setDisabled(False)
         self.conButton.setDisabled(False)
+        self.getHostAddr.setDisabled(False)
 
 
 if __name__ == "__main__":
