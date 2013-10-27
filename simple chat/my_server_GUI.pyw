@@ -40,7 +40,7 @@ class UI(QtGui.QDialog):
         self.grid.addWidget(self.send_text, 5, 0, 4, 4)
 
         self.sendButton = QtGui.QPushButton(self)
-        self.sendButton.setText("send")
+        self.sendButton.setText("Send")
         self.grid.addWidget(self.sendButton, 9, 0, 1, 2)
 
         self.conButton = QtGui.QPushButton(self)
@@ -76,7 +76,11 @@ class UI(QtGui.QDialog):
     def __recv__(self, client, clientName):
         while True:
             data = client.recv(1024)
-            if data:
+            if data == "@@@bye!!!":
+                del self
+                del clientName
+                break
+            elif data:
                  self.receive_list.addItem("%s: %s" % (clientName, data))
         
     def __conSocket__(self):

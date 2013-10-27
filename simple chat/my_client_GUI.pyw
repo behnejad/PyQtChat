@@ -38,7 +38,7 @@ class UI(QtGui.QDialog):
         self.grid.addWidget(self.send_text, 5, 0, 4, 4)
 
         self.sendButton = QtGui.QPushButton(self)
-        self.sendButton.setText("send")
+        self.sendButton.setText("Send")
         self.grid.addWidget(self.sendButton, 9, 0, 1, 2)
 
         self.conButton = QtGui.QPushButton(self)
@@ -70,6 +70,7 @@ class UI(QtGui.QDialog):
                                      QtGui.QMessageBox.Yes)
         if reply == QtGui.QMessageBox.Yes:
             event.accept()
+            self.socket.send("@@@bye!!!")
         else:
             event.ignore()
             
@@ -97,6 +98,7 @@ class UI(QtGui.QDialog):
         self.conButton.setDisabled(True)
 
     def __disconSocket__(self):
+        self.socket.send("@@@bye!!!")
         self.socket.close()
         del self.socket
         self.getHostAddr.setDisabled(False)
