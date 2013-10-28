@@ -9,9 +9,10 @@ class UI(QtGui.QDialog):
     def __init__(self, size):
         QtGui.QWidget.__init__(self, None)
         self.resize(size[0], size[1])
-        self.clientName = self.__getName__()
-        self.socket = 0
-        self.setWindowTitle("simple chat client-%s" % self.clientName)
+        self.setWindowTitle("simple chat server")
+        self.clientName = []
+        self.client = []
+        self.threadList = []
         self.__creat__()
         self.__connect__()
 
@@ -50,20 +51,6 @@ class UI(QtGui.QDialog):
         self.disButton.setText("Disconnect")
         self.grid.addWidget(self.disButton, 9, 3, 1, 1)
 
-    def __connect__(self):
-        self.connect(self.sendButton, QtCore.SIGNAL('clicked()'), self.__send__)
-        self.connect(self.conButton, QtCore.SIGNAL('clicked()'), self.__conSocket__)
-        self.connect(self.disButton, QtCore.SIGNAL('clicked()'), self.__disconSocket__)
-
-    def __getName__(self):
-        text, ok = QtGui.QInputDialog.getText(self, '**PyQt CHAT**',
-                                        'What is yourname?')
-        if ok:
-            return unicode(text)
-        else:
-            self.close()
-            return False
-
     def closeEvent(self, event):
         reply = QtGui.QMessageBox.question(self, 'Quit-Message',
                                      "Are you sure you want to quit?",
@@ -71,44 +58,67 @@ class UI(QtGui.QDialog):
                                      QtGui.QMessageBox.Yes)
         if reply == QtGui.QMessageBox.Yes:
             event.accept()
-            if self.socket != 0:
-                self.socket.send("@@@bye!!!")
-
         else:
             event.ignore()
             
+    def __connect__(self):
+        self.connect(self.sendButton, QtCore.SIGNAL('clicked()'), self.__send__)
+        self.connect(self.conButton, QtCore.SIGNAL('clicked()'), self.__conSocket__)
+        self.connect(self.disButton, QtCore.SIGNAL('clicked()'), self.__disconSocket__)
+
     def __send__(self):
         if str(self.send_text.text()) != "":
-            self.socket.send(str(self.send_text.text()))
-            self.receive_list.addItem("%s: %s" % ("server", self.send_text.text()))
+            for client in self.client:
+                client.send("server@" + str(self.send_text.text()))
+            self.receive_list.addItem("%s: %s" % ("server", str(self.send_text.text())))
             self.send_text.clear()
-
-    def __recv__(self):
-        while True:
-            data = self.socket.recv(1024)
-            if data:
-                self.receive_list.addItem("%s: %s" % ("server", data))
+       
+    def __recv__(self, client, clientName, coName):
+        while True:                    
+            data = client.recv(1024)
+            for i in range(len(self.clientName)):
+                if self.clientName[i] == coName:
+                    coWorker = self.client[i]
+                    
+            if data == "@@@bye!!!":
+                del self
+                del clientName
+                break
+            elif data:
+                self.receive_list.addItem("%s => %s: %s" % (clientName, coName, data))
+                coWorker.send("%s@%s" % (clientName, str(data)))
         
     def __conSocket__(self):
+        self.receive_list.addItem("connecting")
         self.socket = socket(family=AF_INET, type=SOCK_STREAM)
         self.server_address = (str(self.getHostAddr.text()) ,int(self.getHostPort.text()))
-        self.socket.connect(self.server_address)
-        self.socket.send(">-<%s" % self.clientName)
-        self.thread = Thread(target=self.__recv__).start()
+        self.socket.bind(self.server_address)
         
-        self.getHostAddr.setDisabled(True)
+        self.thread_set = Thread(target = self.__set__).start()
+        
         self.getHostPort.setDisabled(True)
         self.conButton.setDisabled(True)
+        self.getHostAddr.setDisabled(True)
 
+    def __set__(self):
+        self.socket.listen(1)
+        while True:
+            client, address = self.socket.accept()
+            self.client.append(client)
+            data = self.client[-1].recv(1024)
+            data = data.split(":")
+            if data[0] == ">-<":
+                self.clientName.append(data[1])
+                self.receive_list.addItem("%s connected" % self.clientName[-1])
+                client.send("server@connected")
+                self.threadList.append(Thread(target=self.__recv__, args=(client, self.clientName[-1], data[2])).start())
+        
     def __disconSocket__(self):
-        if self.socket != 0:
-            self.socket.send("@@@bye!!!")
-            self.socket.close()
-            del self.socket
-
-        self.getHostAddr.setDisabled(False)
+        self.socket.close()
+        del self.socket
         self.getHostPort.setDisabled(False)
         self.conButton.setDisabled(False)
+        self.getHostAddr.setDisabled(False)
 
 
 if __name__ == "__main__":
