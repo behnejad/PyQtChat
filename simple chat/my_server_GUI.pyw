@@ -62,15 +62,19 @@ class UI(QtGui.QDialog):
             event.ignore()
             
     def __connect__(self):
-        self.connect(self.sendButton, QtCore.SIGNAL('clicked()'), self.__send__)
-        self.connect(self.conButton, QtCore.SIGNAL('clicked()'), self.__conSocket__)
-        self.connect(self.disButton, QtCore.SIGNAL('clicked()'), self.__disconSocket__)
+        self.connect(self.sendButton, QtCore.SIGNAL('clicked()'),
+                     self.__send__)
+        self.connect(self.conButton, QtCore.SIGNAL('clicked()'),
+                     self.__conSocket__)
+        self.connect(self.disButton, QtCore.SIGNAL('clicked()'),
+                     self.__disconSocket__)
 
     def __send__(self):
         if str(self.send_text.text()) != "":
             for client in self.client:
                 client.send(str(self.send_text.text()))
-            self.receive_list.addItem("%s: %s" % ("server", self.send_text.text()))
+            self.receive_list.addItem("%s: %s" % ("server",
+                                                  self.send_text.text()))
             self.send_text.clear()
        
     def __recv__(self, client, clientName):
@@ -81,12 +85,14 @@ class UI(QtGui.QDialog):
                 del clientName
                 break
             elif data:
-                 self.receive_list.addItem("%s: %s" % (clientName, data))
+                 self.receive_list.addItem("%s: %s" % (clientName,
+                                                       data))
         
     def __conSocket__(self):
         self.receive_list.addItem("connecting")
         self.socket = socket(family=AF_INET, type=SOCK_STREAM)
-        self.server_address = (str(self.getHostAddr.text()) ,int(self.getHostPort.text()))
+        self.server_address = (str(self.getHostAddr.text()),
+                               int(self.getHostPort.text()))
         self.socket.bind(self.server_address)
         
         self.thread_set = Thread(target = self.__set__).start()
@@ -105,7 +111,9 @@ class UI(QtGui.QDialog):
                 self.clientName.append(data[3:])
                 self.receive_list.addItem("%s connected" % self.clientName[-1])
                 client.send("connected")
-                self.threadList.append(Thread(target=self.__recv__, args=(client, self.clientName[-1])).start())
+                self.threadList.append(Thread(target=self.__recv__,
+                                              args=(client,
+                                                    self.clientName[-1])).start())
         
     def __disconSocket__(self):
         self.socket.close()

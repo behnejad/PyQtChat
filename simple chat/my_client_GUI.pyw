@@ -51,9 +51,12 @@ class UI(QtGui.QDialog):
         self.grid.addWidget(self.disButton, 9, 3, 1, 1)
 
     def __connect__(self):
-        self.connect(self.sendButton, QtCore.SIGNAL('clicked()'), self.__send__)
-        self.connect(self.conButton, QtCore.SIGNAL('clicked()'), self.__conSocket__)
-        self.connect(self.disButton, QtCore.SIGNAL('clicked()'), self.__disconSocket__)
+        self.connect(self.sendButton, QtCore.SIGNAL('clicked()'),
+                     self.__send__)
+        self.connect(self.conButton, QtCore.SIGNAL('clicked()'),
+                     self.__conSocket__)
+        self.connect(self.disButton, QtCore.SIGNAL('clicked()'),
+                     self.__disconSocket__)
 
     def __getName__(self):
         text, ok = QtGui.QInputDialog.getText(self, '**PyQt CHAT**',
@@ -80,7 +83,8 @@ class UI(QtGui.QDialog):
     def __send__(self):
         if str(self.send_text.text()) != "":
             self.socket.send(str(self.send_text.text()))
-            self.receive_list.addItem("%s: %s" % ("server", self.send_text.text()))
+            self.receive_list.addItem("%s: %s" % ("server",
+                                                  self.send_text.text()))
             self.send_text.clear()
 
     def __recv__(self):
@@ -91,7 +95,8 @@ class UI(QtGui.QDialog):
         
     def __conSocket__(self):
         self.socket = socket(family=AF_INET, type=SOCK_STREAM)
-        self.server_address = (str(self.getHostAddr.text()) ,int(self.getHostPort.text()))
+        self.server_address = (str(self.getHostAddr.text()),
+                               int(self.getHostPort.text()))
         self.socket.connect(self.server_address)
         self.socket.send(">-<%s" % self.clientName)
         self.thread = Thread(target=self.__recv__).start()
